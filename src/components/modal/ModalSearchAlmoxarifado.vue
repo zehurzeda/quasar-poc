@@ -36,12 +36,11 @@
 
 <script>
 import ModalSearch from './ModalSearch'
-import { RepositoryFactory } from '../repositories/RepositoryFactory'
-const AlmoxarifadoRepository = RepositoryFactory.get('almoxarifado')
 
 export default {
   props: {
-    filtro: { type: Object, required: true }
+    filtro: { type: Object, required: true },
+    searchMethod: { type: Function, required: true }
   },
   data () {
     return {
@@ -49,22 +48,19 @@ export default {
         {
           name: 'idAlmoxarifado',
           required: true,
-          label: 'Código',
+          label: this.$t('codigo'),
           align: 'left',
           field: 'idAlmoxarifado',
           sortable: true
         },
-        { name: 'sigla', required: true, label: 'Sigla', align: 'left', field: 'sigla', sortable: true },
-        { name: 'nome', required: true, label: 'Nome', align: 'left', field: 'nome', sortable: true }
+        { name: 'sigla', required: true, label: this.$t('sigla'), align: 'left', field: 'sigla', sortable: true },
+        { name: 'nome', required: true, label: this.$t('nome'), align: 'left', field: 'nome', sortable: true }
       ]
     }
   },
   methods: {
     open () {
       this.$refs.modal.open()
-    },
-    searchMethod (filter) {
-      return AlmoxarifadoRepository.get(filter)
     },
     select (object) {
       this.$emit('onSelect', object)

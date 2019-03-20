@@ -1,23 +1,24 @@
 <template>
   <search-input
     :required="required"
-    :label="this.$t('almoxarifado')"
+    :label="label"
     :filter="this.filtro"
     :searchMethod="this.searchMethod"
     @onSelect="select"
     @clean="clean"
     ref="searchInput"
     :valueSelected="selecionado"
+    :validator="validator"
   >
     <template slot="inputs" slot-scope="{ loading }">
       <q-input
-        class="border col-lg-1 col-md-2 col-sm-4"
+        class="col-lg-1 col-md-2 col-sm-4"
         v-model="filtro.sigla"
         :placeholder="$t('sigla')"
         ref="inputSigla"
         @input="changeSigla"/>
       <q-input
-        class="border col-lg-11 col-md-10 col-sm-8"
+        class="col-lg-11 col-md-10 col-sm-8"
         v-model="filtro.nome"
         :placeholder="$t('nome')"
         :loading="loading"
@@ -43,22 +44,29 @@
       <q-item-tile sublabel>{{value.object.sigla}}</q-item-tile>
     </template>
     <template slot="modal">
-      <modal-search-almoxarifado ref="modal" @onSelect="select" :filtro="filtro"></modal-search-almoxarifado>
+      <modal-search-setor
+        :searchMethod="this.searchMethod"
+        ref="modal"
+        @onSelect="select"
+        :filtro="filtro"
+      ></modal-search-setor>
     </template>
   </search-input>
 </template>
 
 <script>
 import SearchInput from './SearchInput'
-import ModalSearchAlmoxarifado from './ModalSearchAlmoxarifado'
+import ModalSearchSetor from '../modal/ModalSearchSetor'
 
 export default {
   props: {
+    label: { type: String, required: true },
     searchMethod: { type: Function, required: true },
     value: { type: Object, required: true },
     required: { type: Boolean, default: false },
     minCharacter: { type: Number, default: 3 },
-    debounce: { type: Number, default: 500 }
+    debounce: { type: Number, default: 500 },
+    validator: { type: Object, required: true }
   },
   data () {
     return {
@@ -68,32 +76,29 @@ export default {
       },
       selecionado: undefined,
       timer: null,
-      loading: false,
-      almoxarifados: []
+      loading: false
     }
   },
   methods: {
-    changeNome (nome) {
-      this.filtro.nome = nome
+    changeNome () {
       this.$refs.searchInput.changeInput(this.filtro.nome)
     },
-    changeSigla (sigla) {
-      this.filtro.sigla = sigla
+    changeSigla () {
       this.$refs.searchInput.changeInput(this.filtro.sigla)
     },
     clean () {
       this.filtro.nome = ''
       this.filtro.sigla = ''
       this.selecionado = undefined
+      this.model = {}
       this.$nextTick(() => this.$refs.inputSigla.focus())
-      this.$emit('onSelect', null)
     },
     openModal () {
       this.$refs.modal.open()
     },
-    select (almoxarifado) {
-      this.selecionado = `${almoxarifado.sigla} - ${almoxarifado.nome}`
-      this.model = almoxarifado
+    select (setor) {
+      this.selecionado = `${setor.sigla} - ${setor.nome}`
+      this.model = setor
     }
   },
   computed: {
@@ -102,13 +107,14 @@ export default {
         return this.value
       },
       set: function (newValue) {
+        this.validator.$touch()
         this.$emit('input', newValue)
       }
     }
   },
   components: {
-    ModalSearchAlmoxarifado,
-    SearchInput
+    SearchInput,
+    ModalSearchSetor
   }
 }
 </script>
